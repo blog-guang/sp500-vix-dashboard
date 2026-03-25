@@ -22,6 +22,14 @@ export default function Home() {
   const [data, setData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetch('/api/market-data')
@@ -41,7 +49,7 @@ export default function Home() {
   }, []);
 
   const formatDate = (dateStr: string) => {
-    const [year, month, day] = dateStr.split('-');
+    const [year, month] = dateStr.split('-');
     return `${year}-${month}`;
   };
 
@@ -49,55 +57,63 @@ export default function Home() {
   const latestSp500 = latest?.sp500;
   const latestVix = latest?.vix;
 
+  const chartHeight = isMobile ? 300 : 500;
+  const chartMargin = isMobile
+    ? { top: 10, right: 20, left: -10, bottom: 0 }
+    : { top: 10, right: 60, left: 0, bottom: 0 };
+  const xAxisInterval = isMobile ? 60 : 30;
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4">
-        <h1 className="text-xl font-semibold text-white">S&P 500 vs VIX</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          标普500指数 与 CBOE VIX恐慌指数 · 实时数据来源 Yahoo Finance
+      <header className="border-b border-gray-800 px-4 py-3">
+        <h1 className="text-lg font-semibold text-white">S&P 500 vs VIX</h1>
+        <p className="text-xs text-gray-400 mt-0.5">
+          标普500 与 VIX恐慌指数 · Yahoo Finance
         </p>
       </header>
 
       {/* Main Chart */}
-      <main className="p-6">
+      <main className="p-4">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-96 gap-4">
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-            <div className="text-gray-500 animate-pulse">正在从 Yahoo Finance 加载数据...</div>
+          <div className="flex flex-col items-center justify-center h-64 gap-3">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="text-gray-500 text-sm animate-pulse">加载中...</div>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-96">
-            <div className="text-red-400 bg-red-900/20 border border-red-800 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-red-400 bg-red-900/20 border border-red-800 rounded-lg px-4 py-3 text-sm">
               {error}
             </div>
           </div>
         ) : (
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-            <ResponsiveContainer width="100%" height={500}>
-              <ComposedChart data={data} margin={{ top: 10, right: 60, left: 0, bottom: 0 }}>
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 sm:p-6">
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <ComposedChart data={data} margin={chartMargin}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDate}
                   stroke="#6b7280"
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  interval={30}
+                  tick={{ fill: '#9ca3af', fontSize: isMobile ? 10 : 12 }}
+                  interval={xAxisInterval}
                 />
                 <YAxis
                   yAxisId="sp500"
                   orientation="left"
                   stroke="#60a5fa"
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  tick={{ fill: '#9ca3af', fontSize: isMobile ? 10 : 12 }}
                   tickFormatter={(v) => v.toLocaleString()}
                   domain={['auto', 'auto']}
+                  width={isMobile ? 50 : 60}
                 />
                 <YAxis
                   yAxisId="vix"
                   orientation="right"
                   stroke="#f97316"
-                  tick={{ fill: '#9ca3af', fontSize: 12 }}
+                  tick={{ fill: '#9ca3af', fontSize: isMobile ? 10 : 12 }}
                   domain={[0, 'auto']}
+                  width={isMobile ? 40 : 50}
                 />
                 <Tooltip
                   contentStyle={{
@@ -105,6 +121,7 @@ export default function Home() {
                     border: '1px solid #374151',
                     borderRadius: '8px',
                     color: '#e5e7eb',
+                    fontSize: isMobile ? 12 : 14,
                   }}
                   labelFormatter={(label) => `📅 ${label}`}
                   cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }}
@@ -114,9 +131,13 @@ export default function Home() {
                   }}
                 />
                 <Legend
-                  wrapperStyle={{ color: '#9ca3af', paddingTop: '20px' }}
+                  wrapperStyle={{
+                    color: '#9ca3af',
+                    paddingTop: isMobile ? '10px' : '20px',
+                    fontSize: isMobile ? 11 : 13,
+                  }}
                   formatter={(value) =>
-                    value === 'sp500' ? 'S&P 500 (标普500)' : 'VIX (恐慌指数)'
+                    value === 'sp500' ? 'S&P 500' : 'VIX'
                   }
                 />
                 <Line
@@ -145,40 +166,37 @@ export default function Home() {
         )}
 
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <p className="text-gray-400 text-sm">S&P 500 最新</p>
-            <p className="text-2xl font-semibold text-blue-400 mt-1">
+            <p className="text-gray-400 text-xs sm:text-sm">S&P 500 最新</p>
+            <p className="text-xl sm:text-2xl font-semibold text-blue-400 mt-1">
               {latestSp500 ? latestSp500.toLocaleString() : '-'}
             </p>
           </div>
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <p className="text-gray-400 text-sm">VIX 恐慌指数最新</p>
-            <p className="text-2xl font-semibold text-orange-400 mt-1">
+            <p className="text-gray-400 text-xs sm:text-sm">VIX 恐慌指数</p>
+            <p className="text-xl sm:text-2xl font-semibold text-orange-400 mt-1">
               {latestVix ? latestVix.toFixed(2) : '-'}
             </p>
           </div>
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <p className="text-gray-400 text-sm">数据覆盖范围</p>
-            <p className="text-lg font-medium text-gray-300 mt-1">
+            <p className="text-gray-400 text-xs sm:text-sm">数据范围</p>
+            <p className="text-base sm:text-lg font-medium text-gray-300 mt-1">
               {data.length > 0
-                ? `${data[0].date} → ${data[data.length - 1].date}`
+                ? `${data[0].date} ~ ${data[data.length - 1].date}`
                 : '-'}
             </p>
           </div>
         </div>
 
         {/* 数据说明 */}
-        <div className="mt-6 p-4 bg-gray-900 rounded-xl border border-gray-800">
-          <h3 className="text-white font-medium mb-2">📡 数据来源说明</h3>
-          <ul className="text-sm text-gray-400 space-y-1">
-            <li>• <span className="text-blue-400">Yahoo Finance</span> 提供实时/历史行情</li>
-            <li>• <span className="text-blue-400">^GSPC</span> — S&P 500 指数</li>
-            <li>• <span className="text-blue-400">^VIX</span> — CBOE 恐慌指数（波动率）</li>
+        <div className="mt-4 p-4 bg-gray-900 rounded-xl border border-gray-800">
+          <h3 className="text-white font-medium text-sm mb-2">📡 数据来源</h3>
+          <ul className="text-xs text-gray-400 space-y-1">
+            <li>• <span className="text-blue-400">Yahoo Finance</span> 实时/历史行情</li>
+            <li>• <span className="text-blue-400">^GSPC</span> — S&P 500 &nbsp;&nbsp; <span className="text-blue-400">^VIX</span> — CBOE VIX</li>
           </ul>
-          <p className="text-gray-600 text-xs mt-3">
-            ⚠️ 数据仅供参考，不构成投资建议
-          </p>
+          <p className="text-gray-600 text-xs mt-3">⚠️ 数据仅供参考，不构成投资建议</p>
         </div>
       </main>
     </div>
