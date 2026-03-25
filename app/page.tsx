@@ -1,4 +1,4 @@
-// S&P 500 vs VIX — Economist Style Chart
+// S&P 500 vs VIX — Economist Style Chart v2
 'use client';
 
 import { useState, useEffect } from 'react';
