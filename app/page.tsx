@@ -28,17 +28,15 @@ const RANGES: { key: RangeKey; label: string }[] = [
   { key: 'ALL', label: '全部' },
 ];
 
-// 经典经济学人风格配色
-const THEME = {
+const T = {
   bg: '#f5f3ef',
-  card: '#ffffff',
   text: '#1a1a1a',
-  muted: '#6b6b6b',
-  border: '#d4cfc5',
+  muted: '#767676',
+  accent: '#9b9b9b',
   sp500: '#2563a8',
   vix: '#c0392b',
   grid: '#e0dbd3',
-  accent: '#1a1a1a',
+  rule: '#d4cfc5',
 };
 
 function subtractMonths(dateStr: string, months: number): string {
@@ -66,7 +64,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<RangeKey>('1Y');
   const [isMobile, setIsMobile] = useState(false);
-  const t = THEME;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -87,6 +84,7 @@ export default function Home() {
   }, []);
 
   const data = filterByRange(rawData, range);
+  const latest = data[data.length - 1];
 
   const formatDate = (dateStr: string) => {
     const [, m, day] = dateStr.split('-');
@@ -98,118 +96,155 @@ export default function Home() {
     return `${y}年${m}月${d}日`;
   };
 
-  const latest = data[data.length - 1];
   const margin = isMobile
-    ? { top: 10, right: 5, left: -20, bottom: 0 }
-    : { top: 10, right: 20, left: 10, bottom: 0 };
+    ? { top: 8, right: 4, left: -24, bottom: 0 }
+    : { top: 12, right: 16, left: 4, bottom: 0 };
 
   return (
-    <div style={{ backgroundColor: t.bg }} className="min-h-screen">
-      {/* Header */}
-      <header style={{ borderBottom: `1px solid ${t.border}`, padding: '14px 16px', backgroundColor: t.card }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1 style={{ fontSize: 18, fontWeight: 700, color: t.text, fontFamily: 'Georgia, "Times New Roman", serif', letterSpacing: '-0.3px' }}>
-              S&amp;P 500 vs VIX
-            </h1>
-            <p style={{ fontSize: 11, color: t.muted, marginTop: 3, fontFamily: 'Georgia, "Times New Roman", serif' }}>
-              标普500 指数 与 CBOE VIX恐慌指数
-            </p>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: t.muted, fontFamily: 'Georgia, serif' }}>
-              {latest ? latest.date : '-'}
-            </div>
-            <div style={{ fontSize: 11, color: t.muted, fontFamily: 'Georgia, serif' }}>
-              {data.length} 个交易日
-            </div>
-          </div>
-        </div>
-      </header>
+    <div style={{ backgroundColor: T.bg, minHeight: '100vh' }}>
+      <style>{`body{margin:0;padding:0}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
-      <main style={{ padding: '12px 8px' }}>
-        {/* Range Selector */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 10, overflowX: 'auto', paddingBottom: 4 }}>
-          {RANGES.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setRange(key)}
-              style={{
-                flexShrink: 0,
-                padding: '5px 12px',
-                fontSize: 12,
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 20px' }}>
+        {/* ── Header ── */}
+        <header style={{ paddingTop: 32, paddingBottom: 12 }}>
+          {/* Title block */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 6 }}>
+            <div>
+              <h1 style={{
+                fontSize: isMobile ? 20 : 26,
+                fontWeight: 400,
+                color: T.text,
                 fontFamily: 'Georgia, "Times New Roman", serif',
-                fontWeight: range === key ? 700 : 400,
-                backgroundColor: range === key ? t.accent : 'transparent',
-                color: range === key ? '#fff' : t.muted,
-                border: `1px solid ${range === key ? t.accent : t.border}`,
-                borderRadius: 2,
-                cursor: 'pointer',
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+                letterSpacing: '-0.5px',
+                margin: 0,
+                lineHeight: 1.1,
+              }}>
+                S&amp;P 500 vs VIX
+              </h1>
+              <p style={{
+                fontSize: 11,
+                color: T.muted,
+                margin: '4px 0 0',
+                fontFamily: 'Georgia, serif',
+                fontStyle: 'italic',
+              }}>
+                标普500指数与VIX恐慌指数
+              </p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{ fontSize: 11, color: T.muted, fontFamily: 'Georgia, serif' }}>
+                {latest ? latest.date : '-'}
+              </span>
+            </div>
+          </div>
 
-        {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 300, gap: 12 }}>
-            <div style={{ width: 32, height: 32, border: `4px solid ${t.border}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-            <p style={{ color: t.muted, fontSize: 13, fontFamily: 'Georgia, serif' }}>加载中...</p>
+          {/* Thin rule */}
+          <div style={{ height: 1, backgroundColor: T.rule }} />
+
+          {/* Inline data strip */}
+          {!loading && !error && latest && (
+            <div style={{ display: 'flex', gap: 24, paddingTop: 10 }}>
+              <div>
+                <span style={{ fontSize: 10, color: T.muted, fontFamily: 'Georgia, serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>S&P 500 </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.sp500, fontFamily: 'Georgia, serif' }}>{latest.sp500?.toLocaleString()}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 10, color: T.muted, fontFamily: 'Georgia, serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>VIX </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.vix, fontFamily: 'Georgia, serif' }}>{latest.vix?.toFixed(2)}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 10, color: T.muted, fontFamily: 'Georgia, serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>范围 </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.text, fontFamily: 'Georgia, serif' }}>{data.length}天</span>
+              </div>
+            </div>
+          )}
+        </header>
+
+        {/* ── Range selector + Chart ── */}
+        <section style={{ paddingTop: 16 }}>
+          {/* Range selector — Economist style, small uppercase text */}
+          <div style={{ display: 'flex', gap: 3, marginBottom: 12 }}>
+            {RANGES.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setRange(key)}
+                style={{
+                  padding: '3px 10px',
+                  fontSize: 10,
+                  fontFamily: 'Georgia, serif',
+                  fontWeight: range === key ? 700 : 400,
+                  backgroundColor: 'transparent',
+                  color: range === key ? T.text : T.muted,
+                  border: 'none',
+                  borderBottom: range === key ? `2px solid ${T.text}` : `2px solid transparent`,
+                  cursor: 'pointer',
+                  letterSpacing: '0.3px',
+                  transition: 'border-color 0.15s',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        ) : error ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-            <p style={{ color: '#ef4444', fontSize: 14 }}>{error}</p>
-          </div>
-        ) : (
-          <>
-            {/* Chart */}
-            <div style={{ backgroundColor: t.card, border: `1px solid ${t.border}`, borderRadius: 2, padding: '14px 4px 10px' }}>
-              <ResponsiveContainer width="100%" height={isMobile ? 280 : 420}>
+
+          {/* Chart */}
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 280, gap: 12 }}>
+              <div style={{ width: 24, height: 24, border: `3px solid ${T.rule}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              <p style={{ color: T.muted, fontSize: 12, fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>加载中</p>
+            </div>
+          ) : error ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
+              <p style={{ color: '#c0392b', fontSize: 13 }}>{error}</p>
+            </div>
+          ) : (
+            <div style={{ width: '100%' }}>
+              <ResponsiveContainer width="100%" height={isMobile ? 260 : 380}>
                 <ComposedChart data={data} margin={margin}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={t.grid} vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={T.grid} vertical={false} />
                   <XAxis
                     dataKey="date"
                     tickFormatter={formatDate}
-                    stroke={t.muted}
-                    tick={{ fill: t.muted, fontSize: 10, fontFamily: 'Georgia, "Times New Roman", serif' }}
+                    stroke={T.muted}
+                    tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     interval={data.length <= 60 ? 4 : data.length <= 180 ? 14 : 30}
                     tickLine={false}
-                    axisLine={{ stroke: t.border }}
+                    axisLine={false}
                   />
                   <YAxis
                     yAxisId="sp500"
                     orientation="left"
-                    stroke={t.sp500}
-                    tick={{ fill: t.muted, fontSize: 10, fontFamily: 'Georgia, "Times New Roman", serif' }}
+                    stroke={T.sp500}
+                    tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     tickFormatter={(v) => v.toLocaleString()}
                     domain={['auto', 'auto']}
-                    width={isMobile ? 40 : 65}
+                    width={isMobile ? 36 : 62}
                     tickLine={false}
                     axisLine={false}
                   />
                   <YAxis
                     yAxisId="vix"
                     orientation="right"
-                    stroke={t.vix}
-                    tick={{ fill: t.muted, fontSize: 10, fontFamily: 'Georgia, "Times New Roman", serif' }}
+                    stroke={T.vix}
+                    tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     domain={[0, 'auto']}
-                    width={isMobile ? 30 : 45}
+                    width={isMobile ? 28 : 42}
                     tickLine={false}
                     axisLine={false}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: t.card,
-                      border: `1px solid ${t.border}`,
-                      borderRadius: 2,
-                      color: t.text,
-                      fontSize: 12,
-                      fontFamily: 'Georgia, "Times New Roman", serif',
+                      backgroundColor: T.bg,
+                      border: 'none',
+                      borderRadius: 0,
+                      color: T.text,
+                      fontSize: 11,
+                      fontFamily: 'Georgia, serif',
                       boxShadow: 'none',
+                      padding: '6px 10px',
                     }}
-                    labelFormatter={(label) => `📅 ${formatFullDate(label as string)}`}
-                    cursor={{ stroke: t.muted, strokeWidth: 1, strokeDasharray: '3 3' }}
+                    labelFormatter={(label) => formatFullDate(label as string)}
+                    cursor={{ stroke: T.accent, strokeWidth: 1, strokeDasharray: '3 3' }}
                     formatter={(value) => {
                       const v = value as number;
                       return [v.toLocaleString(), ''];
@@ -217,58 +252,31 @@ export default function Home() {
                   />
                   <Legend
                     wrapperStyle={{
-                      color: t.muted,
-                      fontSize: 11,
-                      fontFamily: 'Georgia, "Times New Roman", serif',
-                      paddingTop: 10,
-                      fontWeight: 500,
+                      color: T.muted,
+                      fontSize: 10,
+                      fontFamily: 'Georgia, serif',
+                      paddingTop: 8,
+                      letterSpacing: '0.3px',
                     }}
                     formatter={(value) => (value === 'sp500' ? 'S&P 500' : 'VIX恐慌指数')}
                     iconType="plainline"
-                    iconSize={16}
+                    iconSize={18}
                   />
-                  <Line yAxisId="sp500" type="monotone" dataKey="sp500" stroke={t.sp500} strokeWidth={1.8} dot={false} name="sp500" connectNulls />
-                  <Line yAxisId="vix" type="monotone" dataKey="vix" stroke={t.vix} strokeWidth={1.8} dot={false} name="vix" connectNulls />
+                  <Line yAxisId="sp500" type="monotone" dataKey="sp500" stroke={T.sp500} strokeWidth={1.8} dot={false} name="sp500" connectNulls />
+                  <Line yAxisId="vix" type="monotone" dataKey="vix" stroke={T.vix} strokeWidth={1.8} dot={false} name="vix" connectNulls />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+          )}
 
-            {/* Info cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 10 }}>
-              <div style={{ backgroundColor: t.card, border: `1px solid ${t.border}`, borderRadius: 2, padding: '10px 12px' }}>
-                <p style={{ fontSize: 10, color: t.muted, fontFamily: 'Georgia, serif' }}>S&P 500 最新</p>
-                <p style={{ fontSize: 20, fontWeight: 700, color: t.sp500, fontFamily: 'Georgia, serif', marginTop: 2 }}>
-                  {latest?.sp500 ? latest.sp500.toLocaleString() : '-'}
-                </p>
-              </div>
-              <div style={{ backgroundColor: t.card, border: `1px solid ${t.border}`, borderRadius: 2, padding: '10px 12px' }}>
-                <p style={{ fontSize: 10, color: t.muted, fontFamily: 'Georgia, serif' }}>VIX 恐慌指数</p>
-                <p style={{ fontSize: 20, fontWeight: 700, color: t.vix, fontFamily: 'Georgia, serif', marginTop: 2 }}>
-                  {latest?.vix ? latest.vix.toFixed(2) : '-'}
-                </p>
-              </div>
-              <div style={{ backgroundColor: t.card, border: `1px solid ${t.border}`, borderRadius: 2, padding: '10px 12px' }}>
-                <p style={{ fontSize: 10, color: t.muted, fontFamily: 'Georgia, serif' }}>数据范围</p>
-                <p style={{ fontSize: 13, fontWeight: 700, color: t.text, fontFamily: 'Georgia, serif', marginTop: 4 }}>
-                  {data.length > 0 ? `${data[0].date} ~ ${data[data.length - 1].date}` : '-'}
-                </p>
-              </div>
-            </div>
-
-            {/* Data source */}
-            <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${t.border}` }}>
-              <p style={{ fontSize: 9, color: t.muted, fontFamily: 'Georgia, serif' }}>
-                数据来源：Yahoo Finance · ^GSPC S&P 500 指数 · ^VIX CBOE恐慌指数 · 仅供参考，不构成投资建议
-              </p>
-            </div>
-          </>
-        )}
-      </main>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        body { margin: 0; }
-      `}</style>
+          {/* Bottom rule + source */}
+          <div style={{ marginTop: 12, borderTop: `1px solid ${T.rule}`, paddingTop: 6 }}>
+            <p style={{ fontSize: 9, color: T.accent, fontFamily: 'Georgia, serif', margin: 0, fontStyle: 'italic' }}>
+              数据来源：Yahoo Finance · ^GSPC 标普500指数 · ^VIX CBOE恐慌指数 · 仅供参考，不构成投资建议
+            </p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
