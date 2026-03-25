@@ -113,7 +113,7 @@ export default function Home() {
 
   const chartHeight = isMobile ? 300 : 500;
   const chartMargin = isMobile
-    ? { top: 10, right: 20, left: -10, bottom: 0 }
+    ? { top: 10, right: 5, left: -20, bottom: 0 }
     : { top: 10, right: 60, left: 0, bottom: 0 };
 
   const tickInterval =
@@ -165,7 +165,7 @@ export default function Home() {
             </div>
 
             {/* Chart */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 sm:p-6">
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-2 sm:p-6">
               <ResponsiveContainer width="100%" height={chartHeight}>
                 <ComposedChart data={data} margin={chartMargin}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
@@ -183,7 +183,7 @@ export default function Home() {
                     tick={{ fill: '#9ca3af', fontSize: isMobile ? 10 : 12 }}
                     tickFormatter={(v) => v.toLocaleString()}
                     domain={['auto', 'auto']}
-                    width={isMobile ? 50 : 60}
+                    width={isMobile ? 40 : 60}
                   />
                   <YAxis
                     yAxisId="vix"
@@ -191,7 +191,7 @@ export default function Home() {
                     stroke="#f97316"
                     tick={{ fill: '#9ca3af', fontSize: isMobile ? 10 : 12 }}
                     domain={[0, 'auto']}
-                    width={isMobile ? 40 : 50}
+                    width={isMobile ? 30 : 50}
                   />
                   <Tooltip
                     contentStyle={{
