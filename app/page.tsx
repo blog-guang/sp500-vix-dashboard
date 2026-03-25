@@ -98,7 +98,7 @@ export default function Home() {
 
   const margin = isMobile
     ? { top: 8, right: 8, left: 0, bottom: 0 }
-    : { top: 12, right: 24, left: 8, bottom: 0 };
+    : { top: 12, right: 4, left: 0, bottom: 0 };
 
   return (
     <div style={{ backgroundColor: T.bg, minHeight: '100vh' }}>
@@ -220,7 +220,7 @@ export default function Home() {
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
                     domain={['auto', 'auto']}
-                    width={isMobile ? 32 : 56}
+                    width={isMobile ? 32 : 52}
                     tickLine={false}
                     axisLine={false}
                     tickCount={6}
@@ -231,7 +231,7 @@ export default function Home() {
                     stroke={T.vix}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     domain={[0, 'auto']}
-                    width={isMobile ? 28 : 40}
+                    width={isMobile ? 28 : 36}
                     tickLine={false}
                     axisLine={false}
                     tickCount={6}
