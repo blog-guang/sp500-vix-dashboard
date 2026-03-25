@@ -97,8 +97,8 @@ export default function Home() {
   };
 
   const margin = isMobile
-    ? { top: 8, right: 4, left: -24, bottom: 0 }
-    : { top: 12, right: 16, left: 4, bottom: 0 };
+    ? { top: 8, right: 8, left: 0, bottom: 0 }
+    : { top: 12, right: 24, left: 8, bottom: 0 };
 
   return (
     <div style={{ backgroundColor: T.bg, minHeight: '100vh' }}>
@@ -146,7 +146,9 @@ export default function Home() {
             <div style={{ display: 'flex', gap: 24, paddingTop: 10 }}>
               <div>
                 <span style={{ fontSize: 10, color: T.muted, fontFamily: 'Georgia, serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>S&P 500 </span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: T.sp500, fontFamily: 'Georgia, serif' }}>{latest.sp500?.toLocaleString()}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: T.sp500, fontFamily: 'Georgia, serif' }}>
+                  {latest.sp500 ? (latest.sp500 >= 1000 ? `${(latest.sp500/1000).toFixed(1)}k` : latest.sp500.toLocaleString()) : '-'}
+                </span>
               </div>
               <div>
                 <span style={{ fontSize: 10, color: T.muted, fontFamily: 'Georgia, serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>VIX </span>
@@ -216,11 +218,12 @@ export default function Home() {
                     orientation="left"
                     stroke={T.sp500}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
-                    tickFormatter={(v) => v.toLocaleString()}
+                    tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
                     domain={['auto', 'auto']}
-                    width={isMobile ? 36 : 62}
+                    width={isMobile ? 32 : 56}
                     tickLine={false}
                     axisLine={false}
+                    tickCount={6}
                   />
                   <YAxis
                     yAxisId="vix"
@@ -228,9 +231,10 @@ export default function Home() {
                     stroke={T.vix}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     domain={[0, 'auto']}
-                    width={isMobile ? 28 : 42}
+                    width={isMobile ? 28 : 40}
                     tickLine={false}
                     axisLine={false}
+                    tickCount={6}
                   />
                   <Tooltip
                     contentStyle={{
@@ -245,9 +249,10 @@ export default function Home() {
                     }}
                     labelFormatter={(label) => formatFullDate(label as string)}
                     cursor={{ stroke: T.accent, strokeWidth: 1, strokeDasharray: '3 3' }}
-                    formatter={(value) => {
+                    formatter={(value, name) => {
                       const v = value as number;
-                      return [v.toLocaleString(), ''];
+                      if (name === 'sp500') return [v >= 1000 ? `${(v/1000).toFixed(1)}k` : v.toLocaleString(), ''];
+                      return [v.toFixed(2), ''];
                     }}
                   />
                   <Legend
