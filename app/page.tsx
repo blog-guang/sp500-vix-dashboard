@@ -107,7 +107,7 @@ export default function Home() {
                     color: '#e5e7eb',
                   }}
                   labelFormatter={(label) => `📅 ${label}`}
-                  cursor={false}
+                  cursor={{ stroke: '#374151', strokeWidth: 1, strokeDasharray: '4 4' }}
                   formatter={(value) => {
                     const v = value as number;
                     return [v.toLocaleString(), ''];

@@ -23,7 +23,4 @@ body {
   box-shadow: none !important;
 }
 
-/* 去除 tooltip 光标线的白色边框 */
-.recharts-tooltip-cursor {
-  display: none !important;
-}
+
