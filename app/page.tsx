@@ -11,56 +11,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import yfinance from 'yfinance';
 
 interface ChartData {
   date: string;
   sp500: number | null;
   vix: number | null;
-}
-
-async function fetchMarketData(): Promise<ChartData[]> {
-  try {
-    // Fetch S&P 500 and VIX from Yahoo Finance
-    const [sp500Data, vixData] = await Promise.all([
-      yfinance.getHistorical('^GSPC', {
-        period1: '2023-01-01',
-        period2: '2026-03-25',
-        interval: '1d',
-      }),
-      yfinance.getHistorical('^VIX', {
-        period1: '2023-01-01',
-        period2: '2026-03-25',
-        interval: '1d',
-      }),
-    ]);
-
-    // yfinance returns date as Date object, convert to string
-    const formatDateStr = (d: Date | string): string => {
-      if (typeof d === 'string') return d.split('T')[0];
-      return d.toISOString().split('T')[0];
-    };
-
-    // Merge by date
-    const sp500Map = new Map(
-      sp500Data.map((d) => [formatDateStr(d.date), d.close])
-    );
-    const vixMap = new Map(
-      vixData.map((d) => [formatDateStr(d.date), d.close])
-    );
-
-    const allDates = new Set([...sp500Map.keys(), ...vixMap.keys()]);
-    const sortedDates = [...allDates].sort();
-
-    return sortedDates.map((date) => ({
-      date,
-      sp500: sp500Map.get(date) ?? null,
-      vix: vixMap.get(date) ?? null,
-    }));
-  } catch (err) {
-    console.error('Failed to fetch market data:', err);
-    return [];
-  }
 }
 
 export default function Home() {
@@ -69,9 +24,13 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchMarketData()
-      .then((marketData) => {
-        if (marketData.length === 0) {
+    fetch('/api/market-data')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
+      .then((marketData: ChartData[]) => {
+        if (!marketData || marketData.length === 0) {
           setError('数据加载失败，请刷新重试');
         } else {
           setData(marketData);
