@@ -202,7 +202,7 @@ export default function Home() {
           ) : (
             <div style={{ width: '100%' }}>
               <ResponsiveContainer width="100%" height={isMobile ? 260 : 380}>
-                <ComposedChart data={data} margin={margin} isAnimationActive={false}>
+                <ComposedChart data={data} margin={margin}>
                   <CartesianGrid strokeDasharray="3 3" stroke={T.grid} vertical={false} />
                   <XAxis
                     dataKey="date"
