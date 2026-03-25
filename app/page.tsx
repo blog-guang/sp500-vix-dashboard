@@ -202,16 +202,17 @@ export default function Home() {
           ) : (
             <div style={{ width: '100%' }}>
               <ResponsiveContainer width="100%" height={isMobile ? 260 : 380}>
-                <ComposedChart data={data} margin={margin}>
+                <ComposedChart data={data} margin={margin} isAnimationActive={false}>
                   <CartesianGrid strokeDasharray="3 3" stroke={T.grid} vertical={false} />
                   <XAxis
                     dataKey="date"
                     tickFormatter={formatDate}
                     stroke={T.muted}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
-                    interval={data.length <= 60 ? 4 : data.length <= 180 ? 14 : 30}
                     tickLine={false}
                     axisLine={false}
+                    padding={{ left: 0, right: 0 }}
+                    allowDataOverflow={false}
                   />
                   <YAxis
                     yAxisId="sp500"
@@ -219,22 +220,24 @@ export default function Home() {
                     stroke={T.sp500}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
                     tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)}
-                    domain={['auto', 'auto']}
+                    domain={['dataMin - 50', 'dataMax + 50']}
                     width={isMobile ? 32 : 52}
                     tickLine={false}
                     axisLine={false}
                     tickCount={6}
+                    padding={{ top: 0, bottom: 0 }}
                   />
                   <YAxis
                     yAxisId="vix"
                     orientation="right"
                     stroke={T.vix}
                     tick={{ fill: T.muted, fontSize: 9, fontFamily: 'Georgia, serif' }}
-                    domain={[0, 'auto']}
+                    domain={[0, 'dataMax + 2']}
                     width={isMobile ? 28 : 36}
                     tickLine={false}
                     axisLine={false}
                     tickCount={6}
+                    padding={{ top: 0, bottom: 0 }}
                   />
                   <Tooltip
                     contentStyle={{
